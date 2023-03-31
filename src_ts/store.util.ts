@@ -1,5 +1,5 @@
 import {Store} from 'redux';
-
+// TODO Explanation and use case
 let store: Store<any>;
 let storePromise: Promise<Store<any>> | null = null;
 let storeResolver: ((store: Store<any>) => void) | null = null;

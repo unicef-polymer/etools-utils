@@ -1,26 +1,16 @@
 /**
- * Update app state
+ * 'popstate' event is usually listened to by the routing system of the app
  */
-export function replaceAppState(routePath: string, qs: string, dispatchLocationChange: boolean) {
-  // Using replace state to change the URL here ensures the browser's
-  // back button doesn't take you through every query
-  const currentState = window.history.state;
-  window.history.replaceState(currentState, '', routePath + (qs.length ? '?' + qs : ''));
-
-  if (dispatchLocationChange) {
-    // This event lets app-location and app-route know
-    // the URL has changed
-    window.dispatchEvent(new CustomEvent('location-changed'));
-  }
+export function pushState(path: string, eventToTrigger: string) {
+  history.pushState(window.history.state, '', path);  
+  window.dispatchEvent(new CustomEvent(eventToTrigger ? eventToTrigger : 'popstate'));
 }
 
 /**
- * Change app state
+ * Use when you do not want to create another entry in the browser history.
+ * So that the back button doesn't take you through another history entry.
  */
-export function changeAppState(url: string) {
-  if (!url) {
-    return;
-  }
-  window.history.pushState(window.history.state, '', url);
-  window.dispatchEvent(new CustomEvent('location-changed'));
+export function replaceState(path: string, eventToTrigger: string) {
+  history.replaceState(window.history.state, '', path);
+  window.dispatchEvent(new CustomEvent(eventToTrigger ? eventToTrigger : 'popstate'));
 }
