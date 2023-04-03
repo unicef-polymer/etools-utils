@@ -1,194 +1,78 @@
-import difference from 'lodash-es/difference';
-import {formatDate} from './date.util';
-import {fireEvent} from './fire-event.util';
-import {AnyObject, GenericObject} from './types/global.types';
-
-export const isObject = (a: any) => {
-  return a && a.constructor === Object;
-};
-
-export const isArray = (a: any) => {
-  return a && a.constructor === Array;
-};
-
-export const isEmptyObject = (a: any) => {
-  if (!a) {
-    return true;
-  }
-  if (isArray(a) && a.length === 0) {
-    return true;
-  }
-  return isObject(a) && Object.keys(a).length === 0;
-};
-
-export const isJsonStrMatch = (a: any, b: any) => {
-  return JSON.stringify(a) === JSON.stringify(b);
-};
+import isEmpty from 'lodash-es/isEmpty';
+import {AnyObject} from './types/global.types';
 
 export const copy = (a: any) => {
   return JSON.parse(JSON.stringify(a));
 };
 
-// For simple objects, no nesting
-export const objectsAreTheSame = (obj1: any, obj2: any) => {
-  if (obj1 === obj2) {
-    return true;
-  }
-  if (!obj1 && !obj2) {
-    return true;
-  }
-  const props1: GenericObject = obj1 ? Object.keys(obj1) : {};
-  const props2: GenericObject = obj2 ? Object.keys(obj2) : {};
-
-  if (props1.length !== props2.length) {
-    return false;
-  }
-  if (props1.length === 0) {
-    return true;
-  }
-
-  let areDiff = false;
-  props1.forEach((p: string) => {
-    if (obj1[p] !== obj2[p]) {
-      areDiff = true;
-    }
-  });
-  return !areDiff;
+export const cloneDeep = (obj: any) => {
+  return JSON.parse(JSON.stringify(obj));
 };
-
-export function arraysAreEqual(array1: [], array2: []) {
-  let differencesArray = [];
-  if ((!array1 && array2 && array2.length) || (!array2 && array1 && array1.length)) {
-    return false;
-  }
-  if (array1.length > array2.length) {
-    differencesArray = difference(array1, array2);
-  } else {
-    differencesArray = difference(array2, array1);
-  }
-  return isEmptyObject(differencesArray);
-}
 
 let unique = 1;
 export function getUniqueId() {
   return `id-${unique++}`;
 }
 
-/**
- * Cases that should return `true` also
- * 1 should equal '1'
- * [1] should equal ['1']
- * {any: 1} should equal {any: '1'}
- */
-export const areEqual = (obj1: any, obj2: any): boolean => {
-  if (!obj1 && !obj2) {
-    return true;
+export const getFileNameFromURL = (url?: string) => {
+  if (!url) {
+    return '';
   }
-  if ((!obj1 && obj2) || (obj1 && !obj2)) {
-    return false;
-  }
-
-  if (obj1 instanceof Date) {
-    return formatDate(obj1, 'YYYY-MM-DD') === _formatYYYY_MM_DD(obj2);
-  }
-
-  if (obj2 instanceof Date) {
-    return formatDate(obj2, 'YYYY-MM-DD') === _formatYYYY_MM_DD(obj1);
-  }
-
-  if (typeof obj1 === 'number' || typeof obj2 === 'number') {
-    return String(obj1) === String(obj2);
-  }
-  if (typeof obj1 === 'string') {
-    return obj1 === obj2;
-  }
-  if (Array.isArray(obj1)) {
-    return obj1.length === obj2.length && obj1.every((o: any, i: number) => areEqual(o, obj2[i]));
-  }
-  if (typeof obj1 === 'object') {
-    const keys1 = Object.keys(obj1);
-    const keys2 = Object.keys(obj2);
-    return keys1.length === keys2.length && keys1.every((key: string) => areEqual(obj1[key], obj2[key]));
-  }
-  if (obj1 !== obj2) {
-    return false;
-  }
-  return true;
+  // @ts-ignore
+  return url.split('?').shift().split('/').pop();
 };
 
-function _formatYYYY_MM_DD(obj2: string | Date) {
-  if (typeof obj2 === 'string') {
-    return obj2;
+export const filterByIds = <T>(allOptions: T[], givenIds: string[]): T[] => {
+  if (isEmpty(allOptions) || isEmpty(givenIds)) {
+    return [];
   }
-  return formatDate(obj2, 'YYYY-MM-DD');
-}
 
-export const stopGlobalLoading = (el: any, source: string) => {
-  fireEvent(el, 'global-loading', {
-    active: false,
-    loadingSource: source
+  const intGivenIds = givenIds.map((id: string) => Number(id));
+  const options = allOptions.filter((opt: any) => {
+    return intGivenIds.includes(Number(opt.id));
   });
+
+  return options;
 };
 
-export const handleItemsNoLongerAssignedToCurrentCountry = (availableItems: AnyObject[], savedItems?: AnyObject[]) => {
-  if (savedItems && savedItems.length > 0 && availableItems && availableItems.length > 0) {
-    let changed = false;
-    savedItems.forEach((savedItem) => {
-      if (availableItems.findIndex((x) => x.id === savedItem.id) < 0) {
-        availableItems.push(savedItem);
-        changed = true;
+export const buildUrlQueryString = (params: AnyObject): string => {
+  const queryParams = [];
+
+  for (const param in params) {
+    if (!params[param]) {
+      continue;
+    }
+    const paramValue = params[param];
+    let filterUrlValue;
+
+    if (paramValue instanceof Array) {
+      if (paramValue.length > 0) {
+        filterUrlValue = paramValue.join(',');
       }
-    });
-    if (changed) {
-      availableItems.sort((a, b) => (a.name < b.name ? -1 : 1));
+    } else if (typeof paramValue === 'boolean') {
+      if (paramValue) {
+        // ignore if it's false
+        filterUrlValue = 'true';
+      }
+    } else {
+      if (!(param === 'page' && paramValue === 1)) {
+        // do not include page if page=1
+        filterUrlValue = String(paramValue).trim();
+      }
+    }
+
+    if (filterUrlValue) {
+      queryParams.push(param + '=' + filterUrlValue);
     }
   }
+
+  return queryParams.join('&');
 };
 
-export const pageIsNotCurrentlyActive = (
-  routeDetails: any,
-  routeName: string,
-  subRouteName: string,
-  subSubRouteName?: string
-) => {
-  return !(
-    routeDetails &&
-    routeDetails.routeName === routeName &&
-    routeDetails.subRouteName === subRouteName &&
-    (!subSubRouteName || routeDetails.subSubRouteName === subSubRouteName)
-  );
-};
+export function decimalFractionEquals0(val: string) {
+  return val.lastIndexOf('.') > 0 && Number(val.substring(val.lastIndexOf('.') + 1)) === 0;
+}
 
-export const callClickOnSpacePushListener = (htmlElement: any) => {
-  if (htmlElement && htmlElement.addEventListener) {
-    htmlElement.addEventListener('keyup', function (event: KeyboardEvent) {
-      if (event.key === ' ' && !event.ctrlKey) {
-        // Cancel the default action, if needed
-        event.preventDefault();
-        // Trigger the button element with a click
-        htmlElement.click();
-      }
-    });
-  }
-};
-
-export const callClickOnEnterPushListener = (htmlElement: any) => {
-  if (htmlElement && htmlElement.addEventListener) {
-    htmlElement.addEventListener('keyup', function (event: KeyboardEvent) {
-      if (event.key === 'Enter' && !event.ctrlKey) {
-        // Cancel the default action, if needed
-        event.preventDefault();
-        // Trigger the button element with a click
-        htmlElement.click();
-      }
-    });
-  }
-};
-
-export const detailsTextareaRowsCount = (editable: boolean) => {
-  return editable ? 3 : 1;
-};
-
-
-
-
+export function capitalizeFirstLetter(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}

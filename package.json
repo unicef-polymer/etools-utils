@@ -1,6 +1,6 @@
 {
   "name": "@unicef-polymer/etools-utils",
-  "version": "1.0.2",
+  "version": "1.0.0",
   "description": "Utils",
   "repository": {
     "type": "git",
@@ -22,7 +22,7 @@
   "types": "src/index.d.ts",
   "scripts": {
     "tsToJs": "tsc",
-    "start": "tsc --watch",
+    "watch": "tsc --watch",
     "lint": "eslint . --ext js,ts --ignore-path .gitignore",
     "format": "eslint --ext .ts . --fix --ignore-path .gitignore",
     "publishPackage": "npm run tsToJs && npm publish",

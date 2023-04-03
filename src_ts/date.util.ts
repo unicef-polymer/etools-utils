@@ -163,9 +163,9 @@ export function datesAreEqual(date1: any, date2: any) {
   );
 }
 
-export function formatDate(date: Date, format: string) {
+export function formatDate(date: Date | string, format?: string) {
   if (!date) {
     return null;
   }
-  return dayjs(date).format(format);
+  return dayjs(date).format(format || 'D MMM YYYY');
 }

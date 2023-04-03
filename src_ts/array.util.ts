@@ -4,6 +4,7 @@
  */
 
 import {EtoolsLogger} from './singleton/logger';
+import {AnyObject} from './types/global.types';
 
 export function getArraysDiff(base: any[], valuesToVerify: any[], basePropertyToVerify?: string) {
   try {
@@ -56,3 +57,11 @@ function getArrayFromObjsProp(arr: any[], prop: string) {
     return a[prop];
   });
 }
+
+
+export function mergeAndSortItems(existingItems: AnyObject[], newItems?: AnyObject[]) {
+  return [
+    ...(existingItems || []),
+    ...(newItems || []).filter((newItem) => !existingItems.some((x) => x.id === newItem.id))
+  ].sort((a, b) => a.name.localeCompare(b.name));
+};

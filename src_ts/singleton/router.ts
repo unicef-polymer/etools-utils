@@ -173,29 +173,42 @@ export class EtoolsRouterClass {
     return path.indexOf(this.baseUrl) === -1 ? this.baseUrl + EtoolsRouterClass.clearStartEndSlashes(path) : path;
   }
 
-  pushState(path?: string) {
+  pageIsNotCurrentlyActive(routeDetails: any, routeName: string, subRouteName: string, subSubRouteName?: string) {
+    return !(
+      routeDetails &&
+      routeDetails.routeName === routeName &&
+      routeDetails.subRouteName === subRouteName &&
+      (!subSubRouteName || routeDetails.subSubRouteName === subSubRouteName)
+    );
+  }
+
+  pushState(path?: string, queryParams?: string) {
     path = path ? this.prepareLocationPath(path) : '';
-    history.pushState(window.history.state, '', path);
+    history.pushState(window.history.state, '', `${path}${queryParams && queryParams.length ? `?${queryParams}` : ''}`);
     return this;
   }
 
-  replaceState(path?: string) {
+  replaceState(path?: string, queryParams?: string) {
     path = path ? this.prepareLocationPath(path) : '';
-    history.replaceState(window.history.state, '', path);
+    history.replaceState(
+      window.history.state,
+      '',
+      `${path}${queryParams && queryParams.length ? `?${queryParams}` : ''}`
+    );
     return this;
   }
 
   /**
    * Utility used to update location based on routes and dispatch navigate action (optional)
    */
-  updateAppLocation(newLocation: string): void {
-    this.pushState(newLocation);
+  updateAppLocation(newLocation: string, queryParams?: string): void {
+    this.pushState(newLocation, queryParams);
 
     window.dispatchEvent(new CustomEvent('popstate'));
   }
 
-  replaceAppLocation(newLocation: string): void {
-    this.replaceState(newLocation);
+  replaceAppLocation(newLocation: string, queryParams?: string): void {
+    this.replaceState(newLocation, queryParams);
 
     /**
      * Note that just calling history.pushState() or history.replaceState()
