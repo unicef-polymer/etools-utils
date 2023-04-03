@@ -2,7 +2,7 @@
  * 'popstate' event is usually listened to by the routing system of the app
  */
 export function updateAppLocation(path: string, eventToTrigger: string) {
-  history.pushState(window.history.state, '', path);  
+  history.pushState(window.history.state, '', path);
   window.dispatchEvent(new CustomEvent(eventToTrigger ? eventToTrigger : 'popstate'));
 }
 

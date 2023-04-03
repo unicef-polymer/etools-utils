@@ -58,10 +58,9 @@ function getArrayFromObjsProp(arr: any[], prop: string) {
   });
 }
 
-
 export function mergeAndSortItems(existingItems: AnyObject[], newItems?: AnyObject[]) {
   return [
     ...(existingItems || []),
     ...(newItems || []).filter((newItem) => !existingItems.some((x) => x.id === newItem.id))
   ].sort((a, b) => a.name.localeCompare(b.name));
-};
+}
