@@ -8,7 +8,11 @@ export interface EtoolsRouteParams {
 }
 
 export interface EtoolsRouteQueryParams {
-  [key: string]: string;
+  [key: string]: any;
+}
+
+export interface EtoolsRoutesLazyLoadComponentsPath {
+  [key: string]: string[];
 }
 
 export interface EtoolsRouteCallbackParams {

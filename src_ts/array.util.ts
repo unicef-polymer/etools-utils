@@ -64,3 +64,14 @@ export function mergeAndSortItems(existingItems: AnyObject[], newItems?: AnyObje
     ...(newItems || []).filter((newItem) => !existingItems.some((x) => x.id === newItem.id))
   ].sort((a, b) => a.name.localeCompare(b.name));
 }
+
+export function reverseNestedArray(arr: any[]): any[] {
+  if (arr[0] && !Array.isArray(arr[0][0])) {
+    return arr.map((point: []) => {
+      return point.reverse();
+    });
+  } else {
+    arr.map((subArr: []) => reverseNestedArray(subArr));
+  }
+  return arr;
+}

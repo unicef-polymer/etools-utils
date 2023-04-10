@@ -148,7 +148,7 @@ export class EtoolsRouterClass {
       if (match) {
         const routeParams: EtoolsRouteCallbackParams = {
           matchDetails: match.slice(0).map((matchVal: string) => decodeURIComponent(matchVal)),
-          queryParams: this.decodeQueryStrToObj(qs)
+          queryParams: this.buildQueryParams(qs)
         };
         routeDetails = this.routes[i].handler.bind({}, routeParams)();
         break;
@@ -157,16 +157,30 @@ export class EtoolsRouterClass {
     return routeDetails;
   }
 
-  decodeQueryStrToObj(paramsStr: string): EtoolsRouteQueryParams {
-    const qsObj: EtoolsRouteQueryParams = {} as EtoolsRouteQueryParams;
-    if (paramsStr) {
-      const qs: string[] = paramsStr.split('&');
-      qs.forEach((qp: string) => {
-        const qParam = qp.split('=');
-        qsObj[qParam[0] as string] = decodeURIComponent(qParam[1]);
-      });
+  /**
+   * Get query string from query params object
+   * @param {EtoolsRouteQueryParams} params
+   * @returns {string}
+   */
+  encodeQueryParams(params: EtoolsRouteQueryParams): string {
+    const encodedParams: string[] = [];
+    const keys: string[] = Object.keys(params);
+
+    for (const key of keys) {
+      const value: any = params[key];
+      const encodedKey: string = encodeURIComponent(key);
+      if (!value) {
+        continue;
+      }
+
+      const encodedValue: string = Array.isArray(value)
+        ? value.map((param: any) => encodeURIComponent(param.toString())).join(',')
+        : encodeURIComponent(value.toString());
+      if (encodedValue) {
+        encodedParams.push(`${encodedKey}=${encodedValue}`);
+      }
     }
-    return qsObj;
+    return encodedParams.join('&');
   }
 
   prepareLocationPath(path: string): string {
