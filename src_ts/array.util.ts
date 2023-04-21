@@ -4,7 +4,7 @@
  */
 
 import {EtoolsLogger} from './singleton/logger';
-import {AnyObject} from './types/global.types';
+import {AnyObject, GenericObject} from './types/global.types';
 
 export function getArraysDiff(base: any[], valuesToVerify: any[], basePropertyToVerify?: string) {
   try {
@@ -74,4 +74,21 @@ export function reverseNestedArray(arr: any[]): any[] {
     arr.map((subArr: []) => reverseNestedArray(subArr));
   }
   return arr;
+}
+
+export function getProperty(object: GenericObject, path: string[]): any | null {
+  return path.reduce((data: GenericObject | null, field: string) => (data && data[field]) || null, object);
+}
+
+export function setProperty(object: GenericObject, path: string[], dataToSet: any): any | null {
+  let data = object;
+  const pathCopy = [...path];
+  while (pathCopy.length) {
+    const field: string = pathCopy.shift() as string;
+    if (pathCopy.length) {
+      data = data[field] || {};
+    } else {
+      data[field] = dataToSet;
+    }
+  }
 }

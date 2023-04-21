@@ -3,7 +3,7 @@ import {EtoolsLogLevel} from '../enums/logger.enum';
 class EtoolsLoggerClass {
   private static _instance: EtoolsLoggerClass;
   private availableLogLevels = Object.values(EtoolsLogLevel);
-  private etoolsLogsLevel: string = EtoolsLogLevel.OFF;
+  private etoolsLogsLevel: string = '';
 
   public static getInstance(): EtoolsLoggerClass {
     if (!EtoolsLoggerClass._instance) {

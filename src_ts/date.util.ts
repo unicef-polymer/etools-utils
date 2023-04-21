@@ -169,3 +169,7 @@ export function formatDate(date: Date | string, format?: string) {
   }
   return dayjs(date).format(format || 'D MMM YYYY');
 }
+
+export const chronologicalSort = (left: string, right: string) => {
+  return dayjs.utc(left).diff(dayjs.utc(right));
+};
