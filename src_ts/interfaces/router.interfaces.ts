@@ -1,7 +1,7 @@
 import {EtoolsRedirectPaths} from '../types/router.types';
 
 export interface EtoolsRouteQueryParam {
-  [key: string]: string;
+  [key: string]: number | string;
 }
 export interface EtoolsRouteParams {
   [key: string]: number | string;
