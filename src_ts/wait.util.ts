@@ -1,7 +1,7 @@
-export const waitForCondition = (condition: boolean, interval = 100) => {
+export const waitForCondition = (condition: () => boolean, interval = 100) => {
   return new Promise((resolve) => {
     const check = setInterval(() => {
-      if (condition) {
+      if (condition()) {
         clearInterval(check);
         resolve(true);
       }
