@@ -131,7 +131,7 @@ export class EtoolsRouterClass {
    * details about this route: name, sub-route name (if any), route params, query params, route path.
    * @param path
    */
-  getRouteDetails(path?: any): EtoolsRouteDetails | null {
+  getRouteDetails(path?: any, ensureArrayQueryParams = false): EtoolsRouteDetails | null {
     let routeDetails: EtoolsRouteDetails | null = null;
     let locationPath: string = path ? this.getLocationPath(path) : this.getLocationPath();
 
@@ -148,13 +148,43 @@ export class EtoolsRouterClass {
       if (match) {
         const routeParams: EtoolsRouteCallbackParams = {
           matchDetails: match.slice(0).map((matchVal: string) => decodeURIComponent(matchVal)),
-          queryParams: this.buildQueryParams(qs)
+          queryParams: ensureArrayQueryParams ? this.buildQueryParams_EnsureArray(qs) : this.buildQueryParams(qs)
         };
         routeDetails = this.routes[i].handler.bind({}, routeParams)();
         break;
       }
     }
     return routeDetails;
+  }
+
+  private buildQueryParams_EnsureArray(qs: string): EtoolsRouteQueryParams {
+    const params: EtoolsRouteQueryParams = {};
+    qs = (qs || '').replace(/^\?/, '').replace(/\+/g, '%20');
+    const paramList: string[] = qs.split('&');
+    for (const paramListItem of paramList) {
+      const param: string[] = paramListItem.split('=');
+      if (param[0]) {
+        const key: string = decodeURIComponent(param[0]);
+        const value: string = decodeURIComponent(param[1] || '');
+        if (this.isArrayParam(param)) {
+          const valueItems: string[] = value.split(',');
+          params[key] = valueItems.map((item: string) => {
+            return !Number.isNaN(+item) ? +item : item;
+          });
+        } else if (value && !Number.isNaN(+value)) {
+          params[key] = +value;
+        } else if (value === 'true') {
+          params[key] = true;
+        } else {
+          params[key] = value || true;
+        }
+      }
+    }
+    return params;
+  }
+
+  private isArrayParam(param: any): boolean {
+    return param[0].endsWith('__in') || (param[1] && !!~param[1].indexOf(','));
   }
 
   /**

@@ -35,7 +35,7 @@ export const filterByIds = <T>(allOptions: T[], givenIds: string[]): T[] => {
   return options;
 };
 
-export const buildUrlQueryString = (params: AnyObject): string => {
+export const buildUrlQueryString = (params: AnyObject, keepFirstPage = false): string => {
   const queryParams = [];
 
   for (const param in params) {
@@ -55,7 +55,7 @@ export const buildUrlQueryString = (params: AnyObject): string => {
         filterUrlValue = 'true';
       }
     } else {
-      if (!(param === 'page' && paramValue === 1)) {
+      if (keepFirstPage || !(param === 'page' && paramValue === 1)) {
         // do not include page if page=1
         filterUrlValue = String(paramValue).trim();
       }
