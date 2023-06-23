@@ -70,7 +70,7 @@ export function arraysAreEqual(array1: [], array2: []) {
  * {any: 1} should equal {any: '1'}
  */
 export const areEqual = (obj1: any, obj2: any): boolean => {
-  if (!obj1 && !obj2) {
+  if (!obj1 && !obj2 && Number.isNaN(obj1) === Number.isNaN(obj2)) {
     return true;
   }
   if ((!obj1 && obj2) || (obj1 && !obj2)) {
