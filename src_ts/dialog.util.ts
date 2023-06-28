@@ -11,12 +11,17 @@ export function openDialog<D, R = any>({dialog, dialogData, readonly}: IDialog<D
       reject(new Error('Body not exist'));
     }
     dialogElement.dialogData = dialogData;
+    dialogElement.updateComplete.then(() =>
+      setTimeout(() => (dialogElement.shadowRoot!.querySelector<any>('etools-dialog')!.opened = true))
+    );
     if (readonly) {
       dialogElement.readonly = readonly;
     }
     dialogElement.addEventListener('dialog-closed', (e: Event) => {
       const event: CustomEvent<IDialogResponse<R>> = e as CustomEvent<IDialogResponse<R>>;
       resolve(event.detail);
+    });
+    dialogElement.addEventListener('sl-after-hide', (e) => {
       dialogElement.remove();
     });
   });
