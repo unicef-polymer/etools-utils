@@ -22,12 +22,11 @@ export function openDialog<D, R = any>({dialog, dialogData, readonly}: IDialog<D
     if (readonly) {
       dialogElement.readonly = readonly;
     }
+
     dialogElement.addEventListener('dialog-closed', (e: Event) => {
       const event: CustomEvent<IDialogResponse<R>> = e as CustomEvent<IDialogResponse<R>>;
       resolve(event.detail);
       etoolsDialog.opened = false;
-    });
-    dialogElement.addEventListener('sl-after-hide', (_e: Event) => {
       dialogElement.remove();
     });
   });
