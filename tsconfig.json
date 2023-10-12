@@ -12,7 +12,11 @@
     "noFallthroughCasesInSwitch": true,
     "experimentalDecorators": true,
     "esModuleInterop": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "allowJs": true
   },
-  "include": ["src_ts/**/*.ts"]
+  "include": [
+    "src_ts/**/*.ts",
+    "src_ts/etools-ajax/scripts/*.js"
+  ]
 }
