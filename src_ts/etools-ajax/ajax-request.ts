@@ -80,7 +80,7 @@ export interface RequestEndpoint {
  * } reqConfig
  * @param {string} requestKey
  */
-export async function sendRequest( reqConfig: RequestConfig, requestKey?: string): Promise<any> {
+export async function sendRequest(reqConfig: RequestConfig, requestKey?: string): Promise<any> {
   const etoolsRequestConfigOptions = await getEtoolsRequestConfigOptions(reqConfig);
 
   if (requestIsCacheable(reqConfig.method, reqConfig.endpoint)) {

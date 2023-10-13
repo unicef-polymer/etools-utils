@@ -3,7 +3,7 @@ import {Constructor} from '../types/types';
 /**
  * @mixinFunction
  */
-export function AjaxDataMixin<T extends Constructor<any>>( baseClass: T) {
+export function AjaxDataMixin<T extends Constructor<any>>(baseClass: T) {
   class AjaxDataMixinClass extends baseClass {
     _prepareMultiPartFormData(inputBody: any, prepareMultipartData: any): any {
       if (inputBody instanceof FormData) {

@@ -127,9 +127,7 @@ export function isNonEmptyObject(obj: Record<string, unknown> | null | undefined
   return obj !== null && obj !== undefined && typeof obj === 'object' && Object.keys(obj).length > 0;
 }
 
-export async function getEtoolsRequestConfigOptions(
-  ajaxReqConfig: RequestConfig
-): Promise<XhrRequestInterface> {
+export async function getEtoolsRequestConfigOptions(ajaxReqConfig: RequestConfig): Promise<XhrRequestInterface> {
   ajaxReqConfig.method = ajaxReqConfig.method || 'GET';
   const headers = await getRequestHeaders(ajaxReqConfig);
   return {

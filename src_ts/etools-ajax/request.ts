@@ -11,7 +11,7 @@ let activeAjaxRequests: {key: string; request: XhrRequest}[] = [];
  * @param {XhrRequestInterface} requestConfigOptions
  * @param {string} requestKey
  */
-export function doHttpRequest( requestConfigOptions: XhrRequestInterface, requestKey?: string) {
+export function doHttpRequest(requestConfigOptions: XhrRequestInterface, requestKey?: string) {
   const etoolsRequestElement = new XhrRequest();
   etoolsRequestElement.send(requestConfigOptions);
 
@@ -52,7 +52,7 @@ function _cleanUp(requestKey?: string) {
   _removeActiveRequestFromList(requestKey);
 }
 
-function _addToActiveAjaxRequests( request: XhrRequest, key?: string) {
+function _addToActiveAjaxRequests(request: XhrRequest, key?: string) {
   if (key) {
     activeAjaxRequests.push({key, request});
   }
