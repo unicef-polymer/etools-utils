@@ -194,7 +194,7 @@ export class XhrRequest {
     if (typeof body == 'string') {
       return body;
     }
-    const bodyObj = body as Object;
+    const bodyObj = body as object;
     switch (contentType) {
       case 'application/json':
         return JSON.stringify(bodyObj);

@@ -1,5 +1,4 @@
 import './scripts/es6-obj-assign-polyfil.js';
-import {property} from 'lit/decorators.js';
 import AjaxDataMixin from './ajax-data-mixin';
 import {requestIsCacheable, getFromCache, cacheEndpointResponse} from '../dexie-caching.util';
 import {getCsrfHeader, getClientConfiguredHeaders, determineContentType, getRequestUrl} from './ajax-utils';
@@ -38,11 +37,10 @@ function _prepareResponse(response: any) {
  * @applies EtoolsAjaxDataMixin
  * @demo demo/index.html
  */
-export function AjaxRequestMixin<T extends Constructor<any>>( baseClass: T) {
+export function AjaxRequestMixin<T extends Constructor<any>>(baseClass: T) {
   class EtoolsAjaxRequestMixinClass extends AjaxDataMixin(baseClass) {
-    @property({type: Object}) lastAjaxRequest?: XhrRequest;
-
-    @property({type: Array}) activeAjaxRequests: Array<any> = [];
+    lastAjaxRequest?: XhrRequest;
+    activeAjaxRequests: Array<any> = [];
 
     /**
      * Check for cached data if needed, if no cached data then fire new request
