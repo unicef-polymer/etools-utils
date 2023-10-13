@@ -1,19 +1,10 @@
-import { LitElement, html, css } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import {fireEvent} from '../fire-event.util';
 
-export interface EtoolsXhrRequestInterface {
+export interface XhrRequestInterface {
   url: string;
   method?: string;
   async?: boolean;
-  body?:
-    | ArrayBuffer
-    | ArrayBufferView
-    | Blob
-    | Document
-    | FormData
-    | string
-    | object
-    | null;
+  body?: ArrayBuffer | ArrayBufferView | Blob | Document | FormData | string | object | null;
   headers?: object | null;
   handleAs?: XMLHttpRequestResponseType;
   withCredentials?: boolean;
@@ -21,40 +12,21 @@ export interface EtoolsXhrRequestInterface {
   rejectWithRequest?: boolean;
 }
 
-@customElement('etools-xhr-request')
-class EtoolsXhrRequest extends LitElement {
-  @property({type: Object})
+export class XhrRequest {
   xhr: XMLHttpRequest;
-
-  @property({type: Object})
   response: any;
-
-  @property({type: Number})
   status: number;
-
-  @property({type: String})
   statusText: string;
-
-  @property({type: Object})
   completes: Promise<any>;
-
-  @property({type: Object})
   progress: object;
-
-  @property({type: Boolean})
   aborted: boolean;
-
-  @property({type: Boolean})
   errored: boolean;
-
-  @property({type: Boolean})
   timedOut: boolean;
-
-  @property({type: String})
   url: string;
+  resolveCompletes!: (value?: any) => void;
+  rejectCompletes!: (reason?: any) => void;
 
   constructor() {
-    super();
     this.xhr = new XMLHttpRequest();
     this.response = () => null;
     this.status = 0;
@@ -64,14 +36,11 @@ class EtoolsXhrRequest extends LitElement {
     this.aborted = false;
     this.errored = false;
     this.timedOut = false;
-    this.completes = new Promise<any>(( resolve, reject ) => {
+    this.completes = new Promise<any>((resolve, reject) => {
       this.resolveCompletes = resolve;
       this.rejectCompletes = reject;
     });
   }
-
-  private resolveCompletes!: ( value?: any ) => void;
-  private rejectCompletes!: ( reason?: any ) => void;
 
   get succeeded() {
     if (this.errored || this.aborted || this.timedOut) {
@@ -82,40 +51,34 @@ class EtoolsXhrRequest extends LitElement {
     return status === 0 || (status >= 200 && status < 300);
   }
 
-  send( options: EtoolsXhrRequestInterface ): Promise<any> | null {
+  send(options: XhrRequestInterface): Promise<any> | null {
     const xhr = this.xhr;
 
     if (xhr.readyState > 0) {
       return null;
     }
 
-    xhr.addEventListener('progress', ( progress ) => {
+    xhr.addEventListener('progress', (progress) => {
       this._setProgress({
         lengthComputable: progress.lengthComputable,
         loaded: progress.loaded,
-        total: progress.total,
+        total: progress.total
       });
 
-      this.dispatchEvent(
-        new CustomEvent('etools-request-progress-changed', {
-          detail: {value: this.progress},
-        })
-      );
+      fireEvent(document, 'etools-request-progress-changed', {value: this.progress});
     });
 
-    xhr.addEventListener('error', ( error ) => {
+    xhr.addEventListener('error', (error) => {
       this._setErrored(true);
       this._updateStatus();
-      const response =
-        options.rejectWithRequest ? {error: error, request: this} : error;
+      const response = options.rejectWithRequest ? {error: error, request: this} : error;
       this.rejectCompletes(response);
     });
 
-    xhr.addEventListener('timeout', ( error ) => {
+    xhr.addEventListener('timeout', (error) => {
       this._setTimedOut(true);
       this._updateStatus();
-      const response =
-        options.rejectWithRequest ? {error: error, request: this} : error;
+      const response = options.rejectWithRequest ? {error: error, request: this} : error;
       this.rejectCompletes(response);
     });
 
@@ -123,8 +86,7 @@ class EtoolsXhrRequest extends LitElement {
       this._setAborted(true);
       this._updateStatus();
       const error = new Error('Request aborted.');
-      const response =
-        options.rejectWithRequest ? {error: error, request: this} : error;
+      const response = options.rejectWithRequest ? {error: error, request: this} : error;
       this.rejectCompletes(response);
     });
 
@@ -133,11 +95,8 @@ class EtoolsXhrRequest extends LitElement {
       this._setResponse(this.parseResponse());
 
       if (!this.succeeded) {
-        const error = new Error(
-          'The request failed with status code: ' + this.xhr?.status
-        );
-        const response =
-          options.rejectWithRequest ? {error: error, request: this} : error;
+        const error = new Error('The request failed with status code: ' + this.xhr?.status);
+        const response = options.rejectWithRequest ? {error: error, request: this} : error;
         this.rejectCompletes(response);
         return;
       }
@@ -154,19 +113,21 @@ class EtoolsXhrRequest extends LitElement {
       text: 'text/plain',
       html: 'text/html',
       xml: 'application/xml',
-      arraybuffer: 'application/octet-stream',
+      arraybuffer: 'application/octet-stream'
     }[options.handleAs as string];
     let headers = options.headers || Object.create(null);
     const newHeaders = Object.create(null);
     for (const key in headers) {
-      newHeaders[key.toLowerCase()] = headers[key];
+      if (key) {
+        newHeaders[key.toLowerCase()] = headers[key];
+      }
     }
     headers = newHeaders;
 
     if (acceptType && !headers['accept']) {
       headers['accept'] = acceptType;
     }
-    Object.keys(headers).forEach(( requestHeader ) => {
+    Object.keys(headers).forEach((requestHeader) => {
       if (/[A-Z]/.test(requestHeader)) {
         console.error('Headers must be lower case, got', requestHeader);
       }
@@ -176,19 +137,14 @@ class EtoolsXhrRequest extends LitElement {
     if (isXHRAsync) {
       xhr.timeout = options.timeout ?? 0;
 
-      let handleAs = options.handleAs;
+      const handleAs = options.handleAs;
 
-      if (handleAs)
-        xhr.responseType = handleAs;
-
+      if (handleAs) xhr.responseType = handleAs;
     }
 
     xhr.withCredentials = !!options.withCredentials;
 
-    const body = this._encodeBodyObject(
-      options.body,
-      headers['content-type']
-    );
+    const body = this._encodeBodyObject(options.body, headers['content-type']);
 
     xhr.send(body as any);
 
@@ -225,9 +181,7 @@ class EtoolsXhrRequest extends LitElement {
         }
       }
     } catch (e: any) {
-      this.rejectCompletes(
-        new Error('Could not parse response. ' + e.message)
-      );
+      this.rejectCompletes(new Error('Could not parse response. ' + e.message));
     }
   }
 
@@ -236,7 +190,7 @@ class EtoolsXhrRequest extends LitElement {
     this.xhr.abort();
   }
 
-  private _encodeBodyObject( body: any, contentType: string | null ): any {
+  private _encodeBodyObject(body: any, contentType: string | null): any {
     if (typeof body == 'string') {
       return body;
     }
@@ -250,73 +204,55 @@ class EtoolsXhrRequest extends LitElement {
     return body;
   }
 
-  private _wwwFormUrlEncode( object: { [key: string]: any } ) {
+  private _wwwFormUrlEncode(object: {[key: string]: any}) {
     if (!object) {
       return '';
     }
     const pieces: string[] = [];
-    Object.keys(object).forEach(( key ) => {
-      pieces.push(
-        this._wwwFormUrlEncodePiece(key) +
-        '=' +
-        this._wwwFormUrlEncodePiece(object[key])
-      );
+    Object.keys(object).forEach((key) => {
+      pieces.push(this._wwwFormUrlEncodePiece(key) + '=' + this._wwwFormUrlEncodePiece(object[key]));
     });
     return pieces.join('&');
   }
 
-  private _wwwFormUrlEncodePiece( str: any ) {
+  private _wwwFormUrlEncodePiece(str: any) {
     if (str === null || str === undefined || !str.toString) {
       return '';
     }
 
-    return encodeURIComponent(str.toString().replace(/\r?\n/g, '\r\n')).replace(
-      /%20/g,
-      '+'
-    );
+    return encodeURIComponent(str.toString().replace(/\r?\n/g, '\r\n')).replace(/%20/g, '+');
   }
 
   private _updateStatus() {
     this._setStatus(this.xhr.status);
-    this._setStatusText(
-      this.xhr.statusText === undefined ? '' : this.xhr.statusText
-    );
+    this._setStatusText(this.xhr.statusText === undefined ? '' : this.xhr.statusText);
   }
 
-  private _setStatus( status: number ) {
+  private _setStatus(status: number) {
     this.status = status;
   }
 
-  private _setStatusText( statusText: string ) {
+  private _setStatusText(statusText: string) {
     this.statusText = statusText;
   }
 
-  private _setResponse( response: any ) {
+  private _setResponse(response: any) {
     this.response = response;
   }
 
-  private _setProgress( progress: object ) {
+  private _setProgress(progress: object) {
     this.progress = progress;
   }
 
-  private _setAborted( aborted: boolean ) {
+  private _setAborted(aborted: boolean) {
     this.aborted = aborted;
   }
 
-  private _setErrored( errored: boolean ) {
+  private _setErrored(errored: boolean) {
     this.errored = errored;
   }
 
-  private _setTimedOut( timedOut: boolean ) {
+  private _setTimedOut(timedOut: boolean) {
     this.timedOut = timedOut;
   }
-
-  protected render() {
-    return html`
-        <slot></slot>`;
-  }
-
-  static styles = css``;
 }
-
-export { EtoolsXhrRequest };

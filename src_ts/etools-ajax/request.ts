@@ -1,28 +1,27 @@
-import { tryJsonParse } from './etools-ajax-utils';
-import { EtoolsXhrRequestInterface } from "./etools-request/etools-xhr-request";
-import "./etools-request/etools-xhr-request";
-import { EtoolsLogger } from "../singleton/logger";
-import { EtoolsRequestError } from "./etools-ajax-request-mixin";
+import {tryJsonParse} from './ajax-utils';
+import {XhrRequest, XhrRequestInterface} from './xhr-request';
+import './xhr-request';
+import {EtoolsLogger} from '../singleton/logger';
+import {RequestError} from './ajax-request-mixin';
 
-
-let activeAjaxRequests: { key: string; request: Element }[] = [];
+let activeAjaxRequests: {key: string; request: XhrRequest}[] = [];
 
 /**
  * Fire a new http request using etools-xhr-request
- * @param {EtoolsXhrRequestInterface} etoolsRequestConfigOptions
+ * @param {XhrRequestInterface} requestConfigOptions
  * @param {string} requestKey
  */
-export function doHttpRequest(etoolsRequestConfigOptions: EtoolsXhrRequestInterface, requestKey?: string) {
-  const etoolsRequestElement: Element = document.createElement('etools-xhr-request');
-  (etoolsRequestElement as any).send(etoolsRequestConfigOptions);
+export function doHttpRequest( requestConfigOptions: XhrRequestInterface, requestKey?: string) {
+  const etoolsRequestElement = new XhrRequest();
+  etoolsRequestElement.send(requestConfigOptions);
 
   _addToActiveAjaxRequests(etoolsRequestElement, requestKey);
 
   return (etoolsRequestElement as any).completes
-    .then((request: { response: any }) => {
+    .then((request: {response: any}) => {
       let responseData = request.response;
 
-      if (etoolsRequestConfigOptions.handleAs === 'json' && typeof responseData === 'string') {
+      if (requestConfigOptions.handleAs === 'json' && typeof responseData === 'string') {
         responseData = tryJsonParse(responseData);
       }
 
@@ -42,9 +41,9 @@ export function doHttpRequest(etoolsRequestConfigOptions: EtoolsXhrRequestInterf
 
       // Check request aborted, no error handling in this case
       if (!request.aborted) {
-        throw new EtoolsRequestError(error, request.xhr.status, request.xhr.statusText, request.xhr.response);
+        throw new RequestError(error, request.xhr.status, request.xhr.statusText, request.xhr.response);
       } else {
-        throw new EtoolsRequestError(error, 0, 'Request aborted', null);
+        throw new RequestError(error, 0, 'Request aborted', null);
       }
     });
 }
@@ -53,9 +52,9 @@ function _cleanUp(requestKey?: string) {
   _removeActiveRequestFromList(requestKey);
 }
 
-function _addToActiveAjaxRequests( request: Element, key?: string) {
+function _addToActiveAjaxRequests( request: XhrRequest, key?: string) {
   if (key) {
-    activeAjaxRequests.push({ key, request });
+    activeAjaxRequests.push({key, request});
   }
 }
 
@@ -87,7 +86,7 @@ export function abortRequestByKey(key: string) {
   }
 }
 
-function abortRequest(activeReqMapObj: { request: Element }) {
+function abortRequest(activeReqMapObj: {request: XhrRequest}) {
   if (activeReqMapObj.request) {
     (activeReqMapObj.request as any).abort();
   }

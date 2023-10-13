@@ -1,20 +1,20 @@
-import { EtoolsLogger } from "./singleton/logger";
+import {EtoolsLogger} from './singleton/logger';
 
 declare global {
   interface Window {
     EtoolsRequestCacheDisabled: any;
-    EtoolsSharedDb: any
+    EtoolsSharedDb: any;
   }
 }
 type EtoolsEndpoint = {
-  url: string,
-  exp?: number,
-  cacheTableName?: string,
-  cachingKey?: string,
-  sharedDbCachingKey?: string
+  url: string;
+  exp?: number;
+  cacheTableName?: string;
+  cachingKey?: string;
+  sharedDbCachingKey?: string;
   params?: any;
   bypassCache?: boolean;
-}
+};
 
 const etoolsAjaxCacheDefaultTableName = 'ajaxDefaultDataTable';
 const etoolsAjaxCacheListsExpireMapTable = 'listsExpireMapTable';
@@ -34,14 +34,14 @@ const CacheLocations = {
 function getCachingInfo(endpoint: EtoolsEndpoint) {
   return {
     url: endpoint.url,
-    exp: parseInt( endpoint.exp ? endpoint.exp.toString() : '', 10), // ensure this value is integer
+    exp: parseInt(endpoint.exp ? endpoint.exp.toString() : '', 10), // ensure this value is integer
     cacheKey: _getEndpointCacheKey(endpoint),
     cacheTableName: _getCacheTableName(endpoint),
     sharedDbCachingKey: endpoint.sharedDbCachingKey
   };
 }
 
-function _getCacheTableName(endpoint:EtoolsEndpoint) {
+function _getCacheTableName(endpoint: EtoolsEndpoint) {
   if (endpoint.cacheTableName) {
     return endpoint.cacheTableName;
   }
@@ -75,11 +75,11 @@ export function requestIsCacheable(method: string | undefined, endpoint: EtoolsE
   return (method || 'GET') === 'GET' && _expireTimeWasProvided(endpoint) && dexieDbIsConfigured(endpoint);
 }
 
-function _expireTimeWasProvided(endpoint:EtoolsEndpoint) {
+function _expireTimeWasProvided(endpoint: EtoolsEndpoint) {
   return endpoint && Object.prototype.hasOwnProperty.call(endpoint, 'exp') && endpoint.exp && endpoint.exp > 0;
 }
 
-function _getEndpointCacheKey(endpoint:EtoolsEndpoint) {
+function _getEndpointCacheKey(endpoint: EtoolsEndpoint) {
   let cacheKey = endpoint.url;
   if (_isNonEmptyString(endpoint.cachingKey)) {
     if (endpoint.cachingKey != null) {
@@ -120,10 +120,7 @@ function dexieDbIsConfigured(endpoint: EtoolsEndpoint) {
  *
  * @returns `ajaxDefaultDataTable` or `EtoolsSharedDb` or `specifiedTable`
  */
-function _getCacheLocation(cachingInfo:  {
-  cacheTableName: string;
-  sharedDbCachingKey?: string;
-}) {
+function _getCacheLocation(cachingInfo: {cacheTableName: string; sharedDbCachingKey?: string}) {
   if (cachingInfo.cacheTableName === etoolsAjaxCacheDefaultTableName) {
     return CacheLocations.EtoolsRequestCacheDb.defaultDataTable;
   } else {
@@ -167,8 +164,10 @@ function _cacheEndpointDataUsingDefaultTable(dataToCache: any) {
 /**
  * Cache date into specified dexie db table (reqConfig.endpoint.cacheTableName)
  */
-function _cacheEndpointDataUsingSpecifiedTable(responseData: any[], cachingInfo: {cacheTableName: string;
-  exp: number;}) {
+function _cacheEndpointDataUsingSpecifiedTable(
+  responseData: any[],
+  cachingInfo: {cacheTableName: string; exp: number}
+) {
   const listsExpireMapTable = window.EtoolsRequestCacheDb[etoolsAjaxCacheListsExpireMapTable];
   const specifiedTable = window.EtoolsRequestCacheDb[cachingInfo.cacheTableName];
   return window.EtoolsRequestCacheDb.transaction('rw', listsExpireMapTable, specifiedTable, async () => {
@@ -187,12 +186,12 @@ function _cacheEndpointDataUsingSpecifiedTable(responseData: any[], cachingInfo:
     await specifiedTable.clear();
     await specifiedTable.bulkAdd(responseData);
   })
-    .then((_result:any) => {
+    .then((_result: any) => {
       // request response saved into specified table
       // transaction succeeded
       return responseData;
     })
-    .catch((error:any) => {
+    .catch((error: any) => {
       // transaction failed
       // just log the error and return the existing data(received from server)
       EtoolsLogger.warn(
@@ -243,7 +242,7 @@ export function cacheEndpointResponse(responseData: any, endpoint: EtoolsEndpoin
   }
 }
 
-function _isExpiredCachedData(dataExp:number) {
+function _isExpiredCachedData(dataExp: number) {
   // check if we have cached data
   const now = Date.now();
   if (dataExp && dataExp - now > 0) {
@@ -271,7 +270,11 @@ function _getDataFromDefaultCacheTable(cacheKey: string) {
       return Promise.reject('Empty collection');
     })
     .catch((error: any) => {
-      EtoolsLogger.warn('Failed to get data from etools-ajax dexie db default caching table.', 'etools-dexie-caching', error);
+      EtoolsLogger.warn(
+        'Failed to get data from etools-ajax dexie db default caching table.',
+        'etools-dexie-caching',
+        error
+      );
       return Promise.reject(null);
     });
 }
@@ -301,7 +304,7 @@ function _getFromSharedDb(cachingKey: string) {
     });
 }
 
-function _getDataFromSpecifiedCacheTable(cacheTableName : string) {
+function _getDataFromSpecifiedCacheTable(cacheTableName: string) {
   const listsExpireMapTable = window.EtoolsRequestCacheDb[etoolsAjaxCacheListsExpireMapTable];
   const specifiedTable = window.EtoolsRequestCacheDb[cacheTableName];
 
@@ -356,7 +359,10 @@ export function getFromCache(endpoint: EtoolsEndpoint) {
       return _getFromSharedDb(cachingInfo.sharedDbCachingKey ?? '');
     }
     default: {
-      EtoolsLogger.error('Could not determine cache location, in order to retrieve cached data.', 'etools-dexie-caching');
+      EtoolsLogger.error(
+        'Could not determine cache location, in order to retrieve cached data.',
+        'etools-dexie-caching'
+      );
     }
   }
 }
@@ -365,4 +371,4 @@ export default {
   requestIsCacheable,
   cacheEndpointResponse,
   getFromCache
-}
+};

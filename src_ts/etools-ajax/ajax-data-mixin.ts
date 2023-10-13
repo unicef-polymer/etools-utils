@@ -1,10 +1,10 @@
-import { Constructor } from "../types/types";
+import {Constructor} from '../types/types';
 
 /**
  * @mixinFunction
  */
-export function EtoolsAjaxDataMixin<T extends Constructor<any>>( baseClass: T ) {
-  class EtoolsAjaxDataMixinClass extends baseClass {
+export function AjaxDataMixin<T extends Constructor<any>>( baseClass: T) {
+  class AjaxDataMixinClass extends baseClass {
     _prepareMultiPartFormData(inputBody: any, prepareMultipartData: any): any {
       if (inputBody instanceof FormData) {
         return inputBody; // body is already a FromData object
@@ -12,10 +12,9 @@ export function EtoolsAjaxDataMixin<T extends Constructor<any>>( baseClass: T ) 
       let formBody = new FormData();
       const keys = Object.keys(inputBody);
 
-      const self = this;
-      keys.forEach(( key ) => {
+      keys.forEach((key) => {
         if (prepareMultipartData) {
-          formBody = self._prepareFormData(self, formBody, inputBody[key], key);
+          formBody = this._prepareFormData(this, formBody, inputBody[key], key);
         } else {
           formBody.append(key, inputBody[key]);
         }
@@ -31,11 +30,11 @@ export function EtoolsAjaxDataMixin<T extends Constructor<any>>( baseClass: T ) 
           body.append(key, []);
         } else {
           // not empty array
-          data.forEach(( arrData, mainIndex ) => {
+          data.forEach((arrData, mainIndex) => {
             const k = key + '[' + mainIndex + ']';
             if (self._isSimpleObject(arrData)) {
               // Object, not null
-              Object.keys(arrData).forEach(( keyArrData ) => {
+              Object.keys(arrData).forEach((keyArrData) => {
                 body = self._prepareFormData(self, body, arrData[keyArrData], k + '[_obj][' + keyArrData + ']');
               });
             } else if (self._isFile(arrData)) {
@@ -52,7 +51,7 @@ export function EtoolsAjaxDataMixin<T extends Constructor<any>>( baseClass: T ) 
         }
       } else if (self._isSimpleObject(data)) {
         // Object, not null
-        Object.keys(data).forEach(( keyArrData ) => {
+        Object.keys(data).forEach((keyArrData) => {
           body = self._prepareFormData(self, body, data[keyArrData], key + '[_obj][' + keyArrData + ']');
         });
       } else {
@@ -62,7 +61,7 @@ export function EtoolsAjaxDataMixin<T extends Constructor<any>>( baseClass: T ) 
       return body;
     }
 
-    _isFile(data: any): boolean{
+    _isFile(data: any): boolean {
       return data instanceof File || data instanceof Blob;
     }
 
@@ -71,7 +70,7 @@ export function EtoolsAjaxDataMixin<T extends Constructor<any>>( baseClass: T ) 
     }
   }
 
-  return EtoolsAjaxDataMixinClass;
+  return AjaxDataMixinClass;
 }
 
-export default EtoolsAjaxDataMixin;
+export default AjaxDataMixin;

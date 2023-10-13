@@ -1,5 +1,5 @@
-import { _getCSRFCookie } from './etools-ajax-utils';
-import { EtoolsXhrRequest } from "./etools-request/etools-xhr-request";
+import {_getCSRFCookie} from './ajax-utils';
+import {XhrRequest} from './xhr-request';
 
 interface UploadConfig {
   jwtLocalStorageKey?: string;
@@ -30,7 +30,7 @@ export async function upload(
     url: _getEndpoint(config.endpointInfo, config.uploadEndpoint),
     body: _prepareBody(rawFile, filename, config.endpointInfo),
     rejectWithRequest: config.endpointInfo && config.endpointInfo.rejectWithRequest,
-    headers,
+    headers
   };
   return sendRequest(options, filename, onProgressCallback)
     .then((response) => {
@@ -88,7 +88,7 @@ function _prepareBody(rawFile: File | Blob, filename: string, endpointInfo: Uplo
 }
 
 function sendRequest(options: any, requestKey: string, onProgressCallback?: (event: ProgressEvent) => void) {
-  const request = document.createElement('etools-xhr-request') as EtoolsXhrRequest;
+  const request = new XhrRequest();
   if (typeof onProgressCallback === 'function') {
     request.xhr.upload.onprogress = onProgressCallback;
   }
@@ -118,7 +118,7 @@ function _getJwtToken(jwtLocalStorageKey: string | undefined) {
   if (jwtLocalStorageKey) {
     return localStorage.getItem(jwtLocalStorageKey);
   }
-  return ;
+  return;
 }
 
 export function abortActiveRequests(activeReqKeys: string[] | undefined) {

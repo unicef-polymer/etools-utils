@@ -1,5 +1,4 @@
-import { fireEvent } from "../fire-event.util";
-
+import {fireEvent} from '../fire-event.util';
 
 declare global {
   interface Window {
@@ -85,10 +84,9 @@ export function getErrorsArray(errors: any, keyTranslate?: (key: string) => stri
           if (typeof value === 'object') {
             return Object.entries(value || {}).map(
               ([nestedField, nestedValue]) =>
-                `${keyTranslate ? keyTranslate('Field') : 'Field'} ${translatedField} (${keyTranslate ? keyTranslate(nestedField) : nestedField}) - ${getErrorsArray(
-                  nestedValue,
-                  keyTranslate
-                )}`
+                `${keyTranslate ? keyTranslate('Field') : 'Field'} ${translatedField} (${
+                  keyTranslate ? keyTranslate(nestedField) : nestedField
+                }) - ${getErrorsArray(nestedValue, keyTranslate)}`
             );
           }
         }
@@ -113,11 +111,7 @@ export function formatServerErrorAsText(error: any, keyTranslate?: (key: string)
   return error;
 }
 
-export function parseRequestErrorsAndShowAsToastMsgs(
-  error: any,
-  source: HTMLElement,
-  redirectOn404: boolean = false
-): void {
+export function parseRequestErrorsAndShowAsToastMsgs(error: any, source: HTMLElement, redirectOn404 = false): void {
   if (redirectOn404 && error.status === 404) {
     fireEvent(source, '404');
     return;
@@ -130,7 +124,7 @@ export function parseRequestErrorsAndShowAsToastMsgs(
 
 export function showErrorAsToastMsg(errorsString: string, source: HTMLElement): void {
   if (errorsString) {
-    fireEvent(source, 'toast', { text: errorsString, showCloseBtn: true });
+    fireEvent(source, 'toast', {text: errorsString, showCloseBtn: true});
   }
 }
 
@@ -147,8 +141,7 @@ function parseTypedError(errorObject: any, keyTranslate?: (key: string) => strin
   }
 }
 
-
-export function defaultKeyTranslate(key: string = ''): string {
+export function defaultKeyTranslate(key = ''): string {
   return key
     .split('_')
     .map((fieldPart) => `${fieldPart[0].toUpperCase()}${fieldPart.slice(1)}`)

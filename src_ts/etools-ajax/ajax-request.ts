@@ -1,22 +1,22 @@
 import {requestIsCacheable, getFromCache, cacheEndpointResponse} from '../dexie-caching.util';
-import {doHttpRequest} from './etools-request';
-import {getEtoolsRequestConfigOptions} from './etools-ajax-utils';
+import {doHttpRequest} from './request';
+import {getEtoolsRequestConfigOptions} from './ajax-utils';
 
-export interface EtoolsRequestConfig {
-  endpoint: EtoolsRequestEndpoint,
-  body?: any,
-  method?: string,
-  headers?: any,
-  csrfCheck?: string // 'disabled',
+export interface RequestConfig {
+  endpoint: RequestEndpoint;
+  body?: any;
+  method?: string;
+  headers?: any;
+  csrfCheck?: string; // 'disabled',
   /**
    * Set the timeout flag on the request
    */
-  timeout?: number,
+  timeout?: number;
   /**
    * Toggle whether XHR is synchronous or asynchronous.
    * Don't change this to true unless You Know What You Are Doing
    */
-  sync?: boolean,
+  sync?: boolean;
   /**
    * Specifies what data to store in the response property,
    * and to deliver as event.detail.response in response events.
@@ -28,7 +28,7 @@ export interface EtoolsRequestConfig {
    * blob: uses XHR.response.
    * document: uses XHR.response.
    */
-  handleAs?: XMLHttpRequestResponseType,
+  handleAs?: XMLHttpRequestResponseType;
   /**
    * Prefix to be stripped from a JSON response before parsing it.
    * In order to prevent an attack using CSRF with Array responses
@@ -36,24 +36,23 @@ export interface EtoolsRequestConfig {
    * many backends will mitigate this by prefixing all JSON response bodies with a string
    * that would be nonsensical to a JavaScript parser.
    */
-  jsonPrefix?: string,
+  jsonPrefix?: string;
   /**
    * Changes the completes promise chain from generateRequest to reject with an object
    * containing the original request, as well an error message.
    * If false (default), the promise rejects with an error message only.
    */
-  rejectWithRequest?: boolean,
-  withCredentials?: boolean,
-  params?: Record<string, unknown>
+  rejectWithRequest?: boolean;
+  withCredentials?: boolean;
+  params?: Record<string, unknown>;
 }
 
-
-export type EtoolsRequestEndpoint = {
-  url: string,
-  exp?: number,
-  cacheTableName?: string,
-  cachingKey?: string,
-  token_key?: string
+export interface RequestEndpoint {
+  url: string;
+  exp?: number;
+  cacheTableName?: string;
+  cachingKey?: string;
+  token_key?: string;
 }
 /**
  * Check endpoint info to see if data is cacheable,
@@ -81,7 +80,7 @@ export type EtoolsRequestEndpoint = {
  * } reqConfig
  * @param {string} requestKey
  */
-export async function sendRequest(reqConfig: EtoolsRequestConfig, requestKey?: string): Promise<any> {
+export async function sendRequest( reqConfig: RequestConfig, requestKey?: string): Promise<any> {
   const etoolsRequestConfigOptions = await getEtoolsRequestConfigOptions(reqConfig);
 
   if (requestIsCacheable(reqConfig.method, reqConfig.endpoint)) {
