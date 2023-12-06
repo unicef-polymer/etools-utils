@@ -1,7 +1,13 @@
 import './scripts/es6-obj-assign-polyfil.js';
 import AjaxDataMixin from './ajax-data-mixin';
 import {requestIsCacheable, getFromCache, cacheEndpointResponse} from '../dexie-caching.util';
-import {getCsrfHeader, getClientConfiguredHeaders, determineContentType, getRequestUrl} from './ajax-utils';
+import {
+  getCsrfHeader,
+  getClientConfiguredHeaders,
+  determineContentType,
+  getRequestUrl,
+  tryJsonParse
+} from './ajax-utils';
 import {Constructor} from '../types/types';
 import {XhrRequest} from './xhr-request';
 import {EtoolsLogger} from '../singleton/logger';
@@ -17,15 +23,7 @@ export class RequestError extends Error {
     this.error = error;
     this.status = statusCode;
     this.statusText = statusText;
-    this.response = _prepareResponse(response);
-  }
-}
-
-function _prepareResponse(response: any) {
-  try {
-    return JSON.parse(response);
-  } catch (e) {
-    return response;
+    this.response = tryJsonParse(response);
   }
 }
 
@@ -78,7 +76,7 @@ export function AjaxRequestMixin<T extends Constructor<any>>(baseClass: T) {
           let responseData = request.response;
 
           if (reqConfigOptions.handleAs === 'json' && typeof responseData === 'string') {
-            responseData = _prepareResponse(responseData);
+            responseData = tryJsonParse(responseData);
           }
 
           this._removeActiveRequestFromList(activeReqKey);
@@ -190,6 +188,13 @@ export function AjaxRequestMixin<T extends Constructor<any>>(baseClass: T) {
       if (reqConfig.downloadCsv) {
         headers['accept'] = 'text/csv';
         headers['content-type'] = 'text';
+      }
+
+      if (
+        window.EtoolsLanguage &&
+        (String(reqConfig.endpoint.url).startsWith('/') || reqConfig.endpoint.url.includes(window.location.host))
+      ) {
+        headers['language'] = window.EtoolsLanguage;
       }
 
       headers = Object.assign(
