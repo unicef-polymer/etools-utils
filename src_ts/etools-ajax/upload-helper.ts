@@ -1,4 +1,4 @@
-import {_getCSRFCookie} from './ajax-utils';
+import {_getCSRFCookie, tryJsonParse} from './ajax-utils';
 import {XhrRequest} from './xhr-request';
 
 interface UploadConfig {
@@ -10,6 +10,27 @@ interface UploadConfig {
     rejectWithRequest?: boolean;
   };
   uploadEndpoint: string;
+}
+
+export class RequestUploadError extends Error {
+  error: any;
+  status: number;
+  statusText: string;
+  response: any;
+  request: any;
+
+  constructor(error: any, statusCode: number, statusText: string, request?: any) {
+    super();
+    this.response = tryJsonParse(request?.xhr?.response);
+    this.request = request;
+    this.message = error.message;
+    this.error = {
+      message: Object.values(this.response).join(','),
+      stack: error.stack
+    };
+    this.status = statusCode;
+    this.statusText = statusText;
+  }
 }
 
 const activeXhrRequests: Record<string, any> = {};
@@ -29,7 +50,7 @@ export async function upload(
     method: 'POST',
     url: _getEndpoint(config.endpointInfo, config.uploadEndpoint),
     body: _prepareBody(rawFile, filename, config.endpointInfo),
-    rejectWithRequest: config.endpointInfo && config.endpointInfo.rejectWithRequest,
+    rejectWithRequest: true,
     headers
   };
   return sendRequest(options, filename, onProgressCallback)
@@ -94,9 +115,19 @@ function sendRequest(options: any, requestKey: string, onProgressCallback?: (eve
   }
   activeXhrRequests[requestKey] = request;
   request.send(options);
-  return request.completes.then((request) => {
-    return request.response;
-  });
+  return request.completes
+    .then((request) => {
+      return request.response;
+    })
+    .catch((err) => {
+      const request = err.request;
+      // check request aborted, no error handling in this case
+      if (!request.aborted) {
+        throw new RequestUploadError(err.error, request.xhr.status, request.xhr.statusText, request);
+      } else {
+        throw new RequestUploadError(err.error, 0, 'Request aborted');
+      }
+    });
 }
 
 function _getRawFilePropertyName(endpointInfo: UploadConfig['endpointInfo']) {
