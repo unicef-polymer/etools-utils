@@ -1,4 +1,3 @@
-import './scripts/es6-obj-assign-polyfil.js';
 import {RequestConfig} from './ajax-request';
 import {XhrRequestInterface} from './xhr-request';
 
