@@ -1,4 +1,3 @@
-import './scripts/es6-obj-assign-polyfil.js';
 import AjaxDataMixin from './ajax-data-mixin';
 import {requestIsCacheable, getFromCache, cacheEndpointResponse} from '../dexie-caching.util';
 import {
