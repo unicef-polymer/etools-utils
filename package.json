@@ -1,6 +1,6 @@
 {
   "name": "@unicef-polymer/etools-utils",
-  "version": "2.0.0-rc.5",
+  "version": "2.0.0-rc.6",
   "description": "Utils",
   "repository": {
     "type": "git",
@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.191",
+    "dayjs": "^1.11.10",
     "dexie": "^3.2.3",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
