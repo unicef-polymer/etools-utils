@@ -75,8 +75,5 @@
         "argsIgnorePattern": "^_"
       }
     ]
-  },
-  "globals": {
-    "dayjs": true
   }
 }

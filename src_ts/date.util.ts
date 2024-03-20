@@ -1,6 +1,12 @@
 import {EtoolsLogger} from './singleton/logger';
+import dayjs from 'dayjs';
+import dayJsUTC from 'dayjs/plugin/utc';
+import dayJsIsBetween from 'dayjs/plugin/isBetween';
+import dayJsSsSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
-declare const dayjs: any;
+dayjs.extend(dayJsUTC);
+dayjs.extend(dayJsIsBetween);
+dayjs.extend(dayJsSsSameOrBefore);
 
 export function prettyDate(dateString: string, format?: string, placeholder?: string) {
   const date = convertDate(dateString);
