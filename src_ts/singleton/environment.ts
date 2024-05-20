@@ -36,12 +36,12 @@ class EnvironmentClass {
     this.detectEnvironment();
   }
 
-  get basePath() {
+  get baseUrl() {
     return document.getElementsByTagName('base')[0].href;
   }
 
-  get baseUrl() {
-    return '/' + this.basePath.replace(window.location.origin, '').slice(1, -1) + '/';
+  get basePath() {
+    return '/' + this.baseUrl.replace(window.location.origin, '').slice(1, -1) + '/';
   }
 
   setup(environmentDomains?: EnvironmentDomain) {
