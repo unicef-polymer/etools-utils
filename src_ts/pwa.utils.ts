@@ -31,7 +31,9 @@ export const connect =
       /**
        * The `stateChanged(state)` method will be called when the state is updated.
        */
-      stateChanged(_state: S) {}
+      stateChanged(_state: S) {
+        // TBD
+      }
     };
 
 export const lazyReducerEnhancer = (combineReducers: typeof import('redux').combineReducers) => {
@@ -88,7 +90,7 @@ export const installMediaQueryWatcher = (
   mediaQuery: string,
   layoutChangedCallback: (mediaQueryMatches: boolean) => void
 ) => {
-  let mql = window.matchMedia(mediaQuery);
+  const mql = window.matchMedia(mediaQuery);
   try {
     // Chrome & Firefox
     mql.addEventListener('change', (e) => layoutChangedCallback(e.matches));
