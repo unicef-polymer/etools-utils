@@ -20,9 +20,21 @@ export const EnvironmentDomainDefaults: EnvironmentDomain = {
   [EnvironmentType.LOCAL]: 'etools.localhost'
 };
 
+export const envOtherHostDefaults: Record<string, EnvironmentDomain> = {
+  PRP: {
+    [EnvironmentType.PROD]: 'https://www.partnerreportingportal.org',
+    [EnvironmentType.STAGING]: 'https://staging.partnerreportingportal.org',
+    [EnvironmentType.TEST]: 'https://dev.partnerreportingportal.org',
+    [EnvironmentType.DEV]: 'https://dev.partnerreportingportal.org',
+    [EnvironmentType.DEMO]: 'https://demo.partnerreportingportal.org',
+    [EnvironmentType.LOCAL]: 'http://prp.localhost:8081'
+  }
+};
+
 class EnvironmentClass {
   private static _instance: EnvironmentClass;
   private _envDomains: EnvironmentDomain = EnvironmentDomainDefaults;
+  private _envOtherHosts: Record<string, EnvironmentDomain> = envOtherHostDefaults;
   private _env: EnvironmentType = EnvironmentType.PROD;
 
   public static getInstance(): EnvironmentClass {
@@ -44,7 +56,11 @@ class EnvironmentClass {
     return '/' + this.baseUrl.replace(window.location.origin, '').slice(1, -1) + '/';
   }
 
-  setup(environmentDomains?: EnvironmentDomain) {
+  setup(environmentDomains?: EnvironmentDomain, envOtherHosts?: Record<string, EnvironmentDomain>) {
+    if (envOtherHosts) {
+      this._envOtherHosts = envOtherHosts;
+    }
+
     if (environmentDomains) {
       this._envDomains = environmentDomains;
       this.detectEnvironment();
@@ -53,6 +69,16 @@ class EnvironmentClass {
 
   get() {
     return this._env;
+  }
+
+  getHost(host: string, defaultEnvironment?: EnvironmentType) {
+    const selectedHost = this._envOtherHosts?.[host];
+
+    if (selectedHost) {
+      return selectedHost[this._env] || selectedHost[defaultEnvironment || EnvironmentType.LOCAL] || null;
+    }
+
+    return null;
   }
 
   is(environmentToCheck: EnvironmentType) {
@@ -64,7 +90,6 @@ class EnvironmentClass {
     const environments = Object.keys(this._envDomains) as EnvironmentType[];
     this._env =
       environments.find((key: EnvironmentType) => location.includes(this._envDomains[key])) || EnvironmentType.PROD;
-    console.log(location, environments, this._envDomains);
   }
 }
 
