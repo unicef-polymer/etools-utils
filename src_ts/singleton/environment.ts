@@ -21,7 +21,7 @@ export const EnvironmentDomainDefaults: EnvironmentDomain = {
 };
 
 export const envOtherHostDefaults: Record<string, EnvironmentDomain> = {
-  PRP: {
+  prp: {
     [EnvironmentType.PROD]: 'https://www.partnerreportingportal.org',
     [EnvironmentType.STAGING]: 'https://staging.partnerreportingportal.org',
     [EnvironmentType.TEST]: 'https://dev.partnerreportingportal.org',
@@ -72,7 +72,7 @@ class EnvironmentClass {
   }
 
   getHost(host: string, defaultEnvironment?: EnvironmentType) {
-    const selectedHost = this._envOtherHosts?.[host];
+    const selectedHost = this._envOtherHosts?.[host.toLowerCase()];
 
     if (selectedHost) {
       return selectedHost[this._env] || selectedHost[defaultEnvironment || EnvironmentType.LOCAL] || null;
