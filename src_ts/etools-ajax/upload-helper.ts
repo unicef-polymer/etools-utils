@@ -8,6 +8,7 @@ interface UploadConfig {
     rawFilePropertyName?: string;
     extraInfo?: Record<string, any>;
     rejectWithRequest?: boolean;
+    method?: string;
   };
   uploadEndpoint: string;
 }
@@ -47,7 +48,7 @@ export async function upload(
 ): Promise<any> {
   const headers = await _getHeaders(config.jwtLocalStorageKey);
   const options = {
-    method: 'POST',
+    method: config.endpointInfo?.method || 'POST',
     url: _getEndpoint(config.endpointInfo, config.uploadEndpoint),
     body: _prepareBody(rawFile, filename, config.endpointInfo),
     rejectWithRequest: true,
