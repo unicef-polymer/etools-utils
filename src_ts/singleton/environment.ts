@@ -53,7 +53,8 @@ class EnvironmentClass {
   }
 
   get basePath() {
-    return '/' + this.baseUrl.replace(window.location.origin, '').slice(1, -1) + '/';
+    const basePath = this.baseUrl.replace(window.location.origin, '').slice(1, -1);
+    return basePath ? '/' + basePath + '/' : '/';
   }
 
   setup(environmentDomains?: EnvironmentDomain, envOtherHosts?: Record<string, EnvironmentDomain>) {
