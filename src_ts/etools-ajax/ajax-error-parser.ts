@@ -23,80 +23,113 @@ export function tryGetResponseError(response: any): any {
 }
 
 export function getErrorsArray(errors: any, keyTranslate?: (key: string) => string): any | any[] {
-  if (!errors) {
-    return [];
-  }
+  if (!errors) return [];
+
+  keyTranslate = keyTranslate || window.ajaxErrorParserTranslateFunction || defaultKeyTranslate;
 
   if (typeof errors === 'string') {
     return [translateSomeBkErrMessages(errors)];
   }
 
-  if (!keyTranslate) {
-    keyTranslate = window.ajaxErrorParserTranslateFunction || defaultKeyTranslate;
+  if (Array.isArray(errors) && keyTranslate) {
+    return flattenErrorsArray(errors, keyTranslate);
   }
 
-  if (Array.isArray(errors)) {
-    return errors
-      .map((error) =>
-        typeof error === 'string' ? translateSomeBkErrMessages(error) : getErrorsArray(error, keyTranslate)
-      )
-      .flat();
-  }
-
-  const isObject = typeof errors === 'object';
-  if (isObject && errors.error && typeof errors.error === 'string') {
-    return [translateSomeBkErrMessages(errors.error)];
-  }
-
-  if (isObject && errors.errors && Array.isArray(errors.errors)) {
-    return errors.errors
-      .map(function (err: any) {
-        if (typeof err === 'object') {
-          return Object.values(err); // will work only for strings
-        } else {
-          return err;
-        }
-      })
-      .flat();
-  }
-
-  if (isObject && errors.non_field_errors && Array.isArray(errors.non_field_errors)) {
-    return errors.non_field_errors;
-  }
-
-  if (isObject && errors.code) {
-    return parseTypedError(errors, keyTranslate);
-  } else if (isObject) {
-    return Object.entries(errors)
-      .map(([field, value]) => {
-        if (keyTranslate) {
-          const translatedField = keyTranslate(field);
-          if (typeof value === 'string') {
-            return `${keyTranslate('Field')} ${translatedField} - ${translateSomeBkErrMessages(value)}`;
-          }
-          if (Array.isArray(value)) {
-            const baseText = `${keyTranslate('Field')} ${translatedField}: `;
-            const textErrors = getErrorsArray(value, keyTranslate);
-            // * The marking is used for display in etools-error-messages-box
-            // * and adds welcomed indentations when displayed as a toast message
-            return textErrors.length === 1 ? `${baseText}${textErrors}` : [baseText, ..._markNestedErrors(textErrors)];
-          }
-          if (typeof value === 'object') {
-            return Object.entries(value || {}).map(
-              ([nestedField, nestedValue]) =>
-                `${keyTranslate ? keyTranslate('Field') : 'Field'} ${translatedField} (${
-                  keyTranslate ? keyTranslate(nestedField) : nestedField
-                }) - ${getErrorsArray(nestedValue, keyTranslate)}`
-            );
-          }
-        }
-        return '';
-      })
-      .flat();
+  if (typeof errors === 'object' && keyTranslate) {
+    return parseErrorObject(errors, keyTranslate);
   }
 
   return [];
 }
+
+// Helper to handle arrays of errors
+function flattenErrorsArray(errors: any[], keyTranslate: (key: string) => string): any[] {
+  return errors
+    .map((error) =>
+      typeof error === 'string' ? translateSomeBkErrMessages(error) : getErrorsArray(error, keyTranslate)
+    )
+    .flat();
+}
+
+// Helper to parse structured error objects
+function parseErrorObject(errors: any, keyTranslate: (key: string) => string): any[] {
+  const result = [];
+
+  if (errors.error && typeof errors.error === 'string') {
+    return [translateSomeBkErrMessages(errors.error)];
+  }
+
+  if (errors.errors && Array.isArray(errors.errors)) {
+    result.push(...flattenErrorsFromArray(errors.errors));
+  }
+
+  if (errors.non_field_errors && Array.isArray(errors.non_field_errors)) {
+    result.push(...errors.non_field_errors);
+  }
+
+  if (errors.code) {
+    const typedError = parseTypedError(errors, keyTranslate);
+    if (typedError) result.push(typedError);
+  } else {
+    result.push(...parseErrorFields(errors, keyTranslate));
+  }
+
+  return result.flat();
+}
+
+// Helper to handle error arrays within error objects
+function flattenErrorsFromArray(errors: any[]): any[] {
+  return errors
+    .map((err: any) =>
+      typeof err === 'object' ? Object.values(err) : err
+    )
+    .flat();
+}
+
+// Helper to parse each field and its value within an error object
+function parseErrorFields(errors: any, keyTranslate: (key: string) => string): any[] {
+  const seenFields = new Set<string>();
+  return Object.entries(errors).map(([field, value]) => {
+    const translatedField = keyTranslate(field);
+    if (seenFields.has(field)) {
+      return null; // Skip if duplicate
+    }
+    seenFields.add(field); // Mark as seen
+    if (typeof value === 'string') {
+      return `${keyTranslate('Field')} ${translatedField} - ${translateSomeBkErrMessages(value)}`;
+    }
+
+    if (Array.isArray(value)) {
+      return formatArrayErrors(value, translatedField, keyTranslate);
+    }
+
+    if (typeof value === 'object') {
+      return parseNestedErrorFields(value, translatedField, keyTranslate,seenFields);
+    }
+
+    return '';
+  });
+}
+
+// Format errors from an array of values for a specific field
+function formatArrayErrors(errors: any[], translatedField: string, keyTranslate: (key: string) => string): any {
+  const baseText = `${keyTranslate('Field')} ${translatedField}: `;
+  const textErrors = getErrorsArray(errors, keyTranslate);
+  return textErrors.length === 1 ? `${baseText}${textErrors}` : [baseText, ..._markNestedErrors(textErrors)];
+}
+
+// Helper to parse nested error fields within objects
+function parseNestedErrorFields(nestedErrors: any, translatedField: string, keyTranslate: (key: string) => string,seenFields: Set<string>): any {
+  return Object.entries(nestedErrors).map(([nestedField, nestedValue]) => {
+    if (seenFields.has(nestedField)) {
+      return null; // Skip if duplicate
+    }
+    seenFields.add(nestedField); // Mark as seen
+    return `${keyTranslate('Field')} ${translatedField} (${keyTranslate(nestedField)}) - ${getErrorsArray(nestedValue, keyTranslate)}`
+    }
+  );
+}
+
 
 function _markNestedErrors(errs: string[]): string[] {
   return errs.map((er) => ' ' + er);
