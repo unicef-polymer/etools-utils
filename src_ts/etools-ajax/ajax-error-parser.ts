@@ -61,10 +61,12 @@ function parseErrorObject(errors: any, keyTranslate: (key: string) => string): a
 
   if (errors.errors && Array.isArray(errors.errors)) {
     result.push(...flattenErrorsFromArray(errors.errors));
+    delete errors.errors;
   }
 
   if (errors.non_field_errors && Array.isArray(errors.non_field_errors)) {
     result.push(...errors.non_field_errors);
+    delete errors.non_field_errors;
   }
 
   if (errors.code) {
@@ -79,11 +81,7 @@ function parseErrorObject(errors: any, keyTranslate: (key: string) => string): a
 
 // Helper to handle error arrays within error objects
 function flattenErrorsFromArray(errors: any[]): any[] {
-  return errors
-    .map((err: any) =>
-      typeof err === 'object' ? Object.values(err) : err
-    )
-    .flat();
+  return errors.map((err: any) => (typeof err === 'object' ? Object.values(err) : err)).flat();
 }
 
 // Helper to parse each field and its value within an error object
@@ -104,7 +102,7 @@ function parseErrorFields(errors: any, keyTranslate: (key: string) => string): a
     }
 
     if (typeof value === 'object') {
-      return parseNestedErrorFields(value, translatedField, keyTranslate,seenFields);
+      return parseNestedErrorFields(value, translatedField, keyTranslate, seenFields);
     }
 
     return '';
@@ -119,17 +117,23 @@ function formatArrayErrors(errors: any[], translatedField: string, keyTranslate:
 }
 
 // Helper to parse nested error fields within objects
-function parseNestedErrorFields(nestedErrors: any, translatedField: string, keyTranslate: (key: string) => string,seenFields: Set<string>): any {
+function parseNestedErrorFields(
+  nestedErrors: any,
+  translatedField: string,
+  keyTranslate: (key: string) => string,
+  seenFields: Set<string>
+): any {
   return Object.entries(nestedErrors).map(([nestedField, nestedValue]) => {
     if (seenFields.has(nestedField)) {
       return null; // Skip if duplicate
     }
     seenFields.add(nestedField); // Mark as seen
-    return `${keyTranslate('Field')} ${translatedField} (${keyTranslate(nestedField)}) - ${getErrorsArray(nestedValue, keyTranslate)}`
-    }
-  );
+    return `${keyTranslate('Field')} ${translatedField} (${keyTranslate(nestedField)}) - ${getErrorsArray(
+      nestedValue,
+      keyTranslate
+    )}`;
+  });
 }
-
 
 function _markNestedErrors(errs: string[]): string[] {
   return errs.map((er) => ' ' + er);
