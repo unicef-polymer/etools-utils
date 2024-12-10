@@ -110,7 +110,7 @@ function dexieDbIsConfigured(endpoint: EtoolsEndpoint) {
   }
   const cacheTableName = endpoint.cacheTableName || etoolsAjaxCacheDefaultTableName;
   return (
-    !!window.EtoolsRequestCacheDb && // eslint-disable-line
+    !!window.EtoolsRequestCacheDb &&
     window.EtoolsRequestCacheDb[etoolsAjaxCacheListsExpireMapTable] &&
     window.EtoolsRequestCacheDb[cacheTableName]
   );

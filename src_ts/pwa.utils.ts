@@ -95,6 +95,7 @@ export const installMediaQueryWatcher = (
     // Chrome & Firefox
     mql.addEventListener('change', (e) => layoutChangedCallback(e.matches));
   } catch (e1) {
+    console.log(e1);
     try {
       // Safari
       mql.addListener((e) => layoutChangedCallback(e.matches));
