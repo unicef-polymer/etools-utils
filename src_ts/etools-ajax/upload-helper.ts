@@ -164,8 +164,8 @@ export function abortActiveRequests(activeReqKeys: string[] | undefined) {
       try {
         activeXhrRequests[key].abort();
         delete activeXhrRequests[key];
-      } catch (error) {
-        console.log(error);
+      } catch (_error) {
+        //
       }
     });
   }

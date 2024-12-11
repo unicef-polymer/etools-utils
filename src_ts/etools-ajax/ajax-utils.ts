@@ -49,8 +49,7 @@ export function _getCSRFCookie(): string | null {
 export function tryJsonParse(response: string): any {
   try {
     return JSON.parse(response);
-  } catch (e) {
-    console.log(e);
+  } catch (_e) {
     return response;
   }
 }

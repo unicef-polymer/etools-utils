@@ -162,9 +162,8 @@ export class XhrRequest {
           if (preferResponseText || xhr.response === undefined) {
             try {
               return JSON.parse(xhr.responseText);
-            } catch (err) {
+            } catch (_err) {
               console.warn('Failed to parse JSON sent from ' + xhr.responseURL);
-              console.log(err);
               return null;
             }
           }
