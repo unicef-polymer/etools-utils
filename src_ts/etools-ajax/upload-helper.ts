@@ -80,6 +80,7 @@ async function _getHeaders(jwtLocalStorageKey: string | undefined) {
       try {
         jwtToken = await window.AppMsalInstance.acquireTokenSilent();
       } catch (err) {
+        console.log(err);
         window.location.reload();
       }
     }
@@ -163,7 +164,7 @@ export function abortActiveRequests(activeReqKeys: string[] | undefined) {
       try {
         activeXhrRequests[key].abort();
         delete activeXhrRequests[key];
-      } catch (error) {
+      } catch (_error) {
         //
       }
     });

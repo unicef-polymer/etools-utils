@@ -1,7 +1,8 @@
 {
   "name": "@unicef-polymer/etools-utils",
-  "version": "2.0.1",
+  "version": "2.0.3",
   "description": "Utils",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/unicef-polymer/etools-utils.git"
@@ -23,8 +24,10 @@
   "scripts": {
     "tsToJs": "tsc",
     "watch": "tsc --watch",
-    "lint": "eslint . --ext js,ts --ignore-path .gitignore",
-    "format": "eslint --ext .ts . --fix --ignore-path .gitignore",
+    "lint:eslint": "eslint src_ts/**",
+    "format:eslint": "eslint src_ts/** --fix",
+    "lint": "npm run lint:eslint",
+    "format": "npm run format:eslint",
     "publishPackage": "npm run tsToJs && npm publish",
     "prepublishOnly": "npm run tsToJs"
   },
@@ -37,17 +40,18 @@
     "redux": "^4.2.1"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.16.0",
     "@types/lodash-es": "^4.17.7",
-    "@typescript-eslint/eslint-plugin": "^5.7.0",
-    "@typescript-eslint/parser": "^5.7.0",
-    "@typescript-eslint/typescript-estree": "^5.7.0",
-    "eslint": "^7.32.0",
-    "eslint-config-google": "^0.14.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-lit": "^1.6.1",
-    "eslint-plugin-lit-a11y": "^2.2.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "prettier": "~2.5.1",
-    "typescript": "^4.5.4"
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "eslint": "^9.16.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-html": "^8.1.2",
+    "eslint-plugin-lit": "^1.15.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.13.0",
+    "prettier": "^3.4.2",
+    "typescript": "^4.9.5"
   }
 }

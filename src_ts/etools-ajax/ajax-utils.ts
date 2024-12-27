@@ -49,7 +49,7 @@ export function _getCSRFCookie(): string | null {
 export function tryJsonParse(response: string): any {
   try {
     return JSON.parse(response);
-  } catch (e) {
+  } catch (_e) {
     return response;
   }
 }
@@ -100,6 +100,7 @@ async function getAuthorizationHeader(endpoint: {token_key?: string}): Promise<R
       try {
         token = await window.AppMsalInstance.acquireTokenSilent();
       } catch (err) {
+        console.log(err);
         window.location.reload();
       }
     }

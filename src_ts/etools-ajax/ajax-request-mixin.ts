@@ -26,7 +26,6 @@ export class RequestError extends Error {
   }
 }
 
-/* eslint-disable no-unused-vars */
 /**
  * A behavior that will allow you to make a request in any Polymer element you need.
  * @polymer
