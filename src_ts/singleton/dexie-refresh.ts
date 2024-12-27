@@ -24,7 +24,6 @@ class DexieRefreshClass {
 
   refresh() {
     if (!Dexie) {
-      // eslint-disable-line
       EtoolsLogger.error('Dexie not imported', 'etools-page-refresh-mixin');
     }
 
@@ -43,7 +42,7 @@ class DexieRefreshClass {
 
   clearDexieDbs() {
     // except Chrome and Opera this method will delete only the dbs created with Dexie
-    // eslint-disable-next-line no-undef
+
     Dexie.getDatabaseNames((dbsNames: any[]) => {
       this.dexieDbsNumber = dbsNames.length;
       if (this.dexieDbsNumber > 0) {
@@ -55,7 +54,6 @@ class DexieRefreshClass {
   }
 
   deleteDexieDb(dbName: string) {
-    // eslint-disable-next-line no-undef
     const db = new Dexie(dbName);
     let finished = false;
     db.delete()
