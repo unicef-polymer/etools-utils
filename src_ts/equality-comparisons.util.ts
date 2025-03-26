@@ -1,6 +1,13 @@
 import {formatDate} from './date.util';
 import {GenericObject} from './types/global.types';
 import difference from 'lodash-es/difference';
+import isEqual from 'lodash-es/isEqual';
+
+export type DataComparisonOptions = {
+  toRequest?: boolean;
+  nestedFields?: string[];
+  strongComparison?: boolean;
+};
 
 export const isObject = (a: any) => {
   return a && a.constructor === Object;
@@ -110,4 +117,54 @@ function _formatYYYY_MM_DD(obj2: string | Date) {
     return obj2;
   }
   return formatDate(obj2, 'YYYY-MM-DD');
+}
+
+export function simplifyValue(value: any): any {
+  if (Array.isArray(value)) {
+    return value.map((obj: any) => (obj && Object.hasOwnProperty.call(obj, 'id') && obj.id) || obj);
+  }
+  if (value && Object.hasOwnProperty.call(value, 'id')) {
+    return value.id;
+  }
+  return value;
+}
+
+export function getDifference<T>(
+  originalData: Partial<T>,
+  modifiedData: Partial<T>,
+  options: DataComparisonOptions = {}
+): Partial<T> {
+  const {toRequest = false, strongComparison = false, nestedFields = []} = options;
+  return Object.keys(modifiedData).reduce((changes: Partial<T>, key: string) => {
+    const originalValue: any = originalData && originalData[key as keyof T];
+    let modifiedValue: any = modifiedData && modifiedData[key as keyof T];
+    if (originalValue === null && modifiedValue === null) {
+      return changes;
+    }
+
+    let modifiedToCompare: any = modifiedValue;
+    let originalToCompare: any = originalValue;
+
+    const isNestedField: boolean = nestedFields.includes(key);
+    const needsToBeSimplified: boolean =
+      !isNestedField && (typeof originalValue === 'object' || typeof modifiedValue === 'object');
+
+    if (needsToBeSimplified) {
+      modifiedToCompare = simplifyValue(modifiedValue);
+      originalToCompare = simplifyValue(originalValue);
+    }
+
+    const noChanges: boolean =
+      strongComparison || isNestedField
+        ? isEqual(modifiedToCompare, originalToCompare)
+        : areEqual(modifiedToCompare, originalToCompare);
+
+    if (noChanges) {
+      return changes;
+    }
+    if (toRequest) {
+      modifiedValue = modifiedToCompare;
+    }
+    return {...changes, [key]: modifiedValue};
+  }, {});
 }
