@@ -10,6 +10,13 @@ export const cloneDeep = (obj: any) => {
   return JSON.parse(JSON.stringify(obj));
 };
 
+export const cloneDeepIfHasValue = (val: any) => {
+  if (val) {
+    return JSON.parse(JSON.stringify(val));
+  }
+  return val;
+};
+
 let unique = 1;
 export function getUniqueId() {
   return `id-${unique++}`;
