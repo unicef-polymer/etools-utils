@@ -92,3 +92,12 @@ export function setProperty(object: GenericObject, path: string[], dataToSet: an
     }
   }
 }
+
+export function commaSeparatedDictValues(items: any[], key: string) {
+  const newList = (items || []).map((item) => item[key]);
+  return commaSeparatedValues(newList);
+}
+
+export function commaSeparatedValues(list: any[]) {
+  return (list || []).join(', ');
+}
