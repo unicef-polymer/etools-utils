@@ -82,6 +82,15 @@ class EnvironmentClass {
     return null;
   }
 
+  getECNHost() {
+    // only 2 env: Prod and Staging
+    if (this.is(EnvironmentType.PROD)) {
+      return 'https://ecn.unicef.org/';
+    }
+    // Staging
+    return 'https://ecn.unicef.io/';
+  }
+
   is(environmentToCheck: EnvironmentType) {
     return this._env === environmentToCheck;
   }
