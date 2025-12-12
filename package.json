@@ -1,6 +1,6 @@
 {
   "name": "@unicef-polymer/etools-utils",
-  "version": "3.0.0-rc.2",
+  "version": "3.0.0",
   "description": "Utils",
   "type": "module",
   "repository": {
