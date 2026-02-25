@@ -16,7 +16,7 @@ export function tryGetResponseError(response: any): any {
   if (response.status === 403) {
     return http403Msg;
   }
-  if (response.status >= 401) {
+  if (response.status > 404) {
     return globalMessage;
   }
   return response.response || globalMessage;
