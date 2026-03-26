@@ -5,6 +5,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "lib": ["es2018", "esnext", "dom"],
+    "types": ["node"],
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -17,6 +18,6 @@
     "outDir": "dist"
   },
   "include": [
-    "src_ts/**/*.ts"
+    "src/**/*.ts"
   ]
 }
