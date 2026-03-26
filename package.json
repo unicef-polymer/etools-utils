@@ -1,0 +1,57 @@
+{
+  "name": "@unicef-polymer/etools-utils",
+  "version": "3.0.1",
+  "description": "Utils",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unicef-polymer/etools-utils.git"
+  },
+  "keywords": [
+    "utils"
+  ],
+  "author": "UNICEF eTools Team",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/unicef-polymer/etools-utils/issues"
+  },
+  "homepage": "https://github.com/unicef-polymer/etools-utils#readme",
+  "files": [
+    "dist"
+  ],
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "scripts": {
+    "tsToJs": "tsc",
+    "watch": "tsc --watch",
+    "lint:eslint": "eslint src_ts/**",
+    "format:eslint": "eslint src_ts/** --fix",
+    "lint": "npm run lint:eslint",
+    "format": "npm run format:eslint",
+    "publishPackage": "npm run tsToJs && npm publish",
+    "prepublishOnly": "npm run tsToJs"
+  },
+  "dependencies": {
+    "@types/lodash": "^4.14.191",
+    "dayjs": "^1.11.10",
+    "dexie": "^3.2.4",
+    "lodash": "^4.17.23",
+    "lodash-es": "^4.17.23",
+    "redux": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.16.0",
+    "@types/lodash-es": "^4.17.7",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "eslint": "^9.16.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-html": "^8.1.2",
+    "eslint-plugin-lit": "^1.15.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.4.2",
+    "typescript": "^5.3.3"
+  }
+}
