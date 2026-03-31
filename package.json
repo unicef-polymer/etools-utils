@@ -19,13 +19,13 @@
   "files": [
     "dist"
   ],
-  "main": "src/index.js",
-  "types": "src/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "tsToJs": "tsc",
     "watch": "tsc --watch",
-    "lint:eslint": "eslint src_ts/**",
-    "format:eslint": "eslint src_ts/** --fix",
+    "lint:eslint": "eslint src/**",
+    "format:eslint": "eslint src/** --fix",
     "lint": "npm run lint:eslint",
     "format": "npm run format:eslint",
     "publishPackage": "npm run tsToJs && npm publish",

@@ -19,5 +19,6 @@
   },
   "include": [
     "src/**/*.ts"
-  ]
+  ],
+  "extends": "../../../tsconfig.json"
 }
